@@ -1,0 +1,343 @@
+================================================================================
+    PRESENTACIÓN - MÓDULO COLORTECH WORKORDERS
+    Gestión de Órdenes de Trabajo para Odoo 19
+================================================================================
+
+Duración estimada: 5-10 minutos
+Estructura: 3 bloques → Empresa + Módulo técnico + Demo en vivo
+
+================================================================================
+BLOQUE 1 — LA EMPRESA Y EL PROBLEMA (2 minutos)
+================================================================================
+
+[DIAPOSITIVA / DECIR]
+
+"Buenos días. Somos [nombre del grupo] y vamos a presentar nuestro módulo
+personalizado para Odoo 19."
+
+"Nuestra empresa es ColorTech Guadalajara S.L., un taller de pintura y
+personalización de dispositivos electrónicos ubicado en Guadalajara. Tiene
+unos 20 empleados entre técnicos de pintura, recepcionistas y control de
+calidad."
+
+"¿Qué hace esta empresa? Recibe dispositivos de clientes —móviles, consolas,
+portátiles, tablets, auriculares— y les aplica servicios de pintura
+personalizada, lacado, acabados metalizados, restauración de carcasas y
+recubrimientos protectores."
+
+"El PROBLEMA que detectamos es que el taller no tenía un sistema para gestionar
+sus órdenes de trabajo. Todo se hacía con hojas de papel y WhatsApp:
+  - No sabían en qué estado estaba cada dispositivo
+  - No controlaban los tiempos ni los costes
+  - No tenían un catálogo de servicios con precios unificados
+  - No podían hacer seguimiento de los técnicos asignados"
+
+"Nuestra SOLUCIÓN es un módulo de Odoo 19 llamado 'ColorTech - Órdenes de
+Trabajo' que digitaliza todo el flujo del taller: desde que el cliente deja
+el dispositivo hasta que se lo entregan terminado."
+
+
+================================================================================
+BLOQUE 2 — DISEÑO TÉCNICO DEL MÓDULO (3 minutos)
+================================================================================
+
+[DIAPOSITIVA / DECIR]
+
+--- 2.1 Estructura del módulo ---
+
+"El módulo sigue la estructura oficial de Odoo:"
+
+  colortech_workorders/
+  ├── __manifest__.py          → Manifiesto del módulo
+  ├── __init__.py              → Importación de paquetes
+  ├── models/                  → 3 modelos Python
+  │   ├── __init__.py
+  │   ├── colortech_device_type.py
+  │   ├── colortech_service.py
+  │   └── colortech_workorder.py
+  ├── views/                   → 4 archivos XML de vistas
+  │   ├── colortech_device_type_views.xml
+  │   ├── colortech_service_views.xml
+  │   ├── colortech_workorder_views.xml
+  │   └── colortech_menus.xml
+  ├── security/
+  │   └── ir.model.access.csv  → Reglas de acceso
+  ├── data/
+  │   └── colortech_demo_data.xml → Datos de demostración
+  └── static/description/
+      └── icon.png             → Icono del módulo
+
+
+--- 2.2 Modelos (Python) ---
+
+"He creado 3 modelos con un total de 4 tablas en la base de datos:"
+
+  MODELO 1: colortech.device.type (Tipo de Dispositivo)
+  ─────────────────────────────────────────────────────
+  • Campos: name, code, description, active
+  • Es un modelo de configuración para categorizar dispositivos
+  • Tiene restricción SQL: código único
+  • Ejemplos: Teléfono Móvil (DEV-MOV), Consola (DEV-CON), Portátil (DEV-PORT)
+
+  MODELO 2: colortech.service (Servicio)
+  ─────────────────────────────────────────────────────
+  • Campos: name, code, service_type (Selection), description, 
+    default_price, estimated_hours, active
+  • Catálogo de servicios con precios y tiempos base
+  • Validaciones Python: precio y horas no pueden ser negativos (@api.constrains)
+  • Restricción SQL: código único
+  • Tipos: Pintura y Lacado, Personalización, Restauración, Protección, Otro  
+
+  MODELO 3: colortech.workorder (Orden de Trabajo) — MODELO PRINCIPAL
+  ─────────────────────────────────────────────────────
+  • 17 campos en el modelo principal (supera el requisito de 8-12)
+  • Hereda de mail.thread y mail.activity.mixin → chatter con historial
+  • Campos: name (auto-secuencia OT-XXXX), client_name, client_phone, 
+    client_email, device_type_id (Many2one), device_brand, device_model, 
+    device_serial, device_condition (Selection), device_notes, 
+    technician_name, priority (Selection), date_received, date_promised, 
+    date_delivered, line_ids (One2many), state (Selection con 7 estados),
+    total_cost (computed), total_hours (computed), service_count (computed),
+    notes, active
+  • Secuencia automática: al crear una orden se asigna OT-0001, OT-0002...
+  • Flujo de estados con botones:
+      Recibido → En Proceso → Secado → Control de Calidad → Terminado → Entregado
+      (+ Cancelar y Reabrir)
+  • Validación: no se puede iniciar sin al menos un servicio
+  • Tracking: los cambios de estado, cliente, técnico y fechas quedan
+    registrados en el chatter
+
+  MODELO 4: colortech.workorder.line (Línea de Orden)
+  ─────────────────────────────────────────────────────
+  • Es el modelo secundario relacionado (relación Many2one ↔ One2many)
+  • Campos: workorder_id, sequence, service_id (Many2one), description,
+    quantity, unit_price, subtotal (computed), estimated_hours
+  • Onchange: al seleccionar un servicio se auto-rellena precio y horas
+  • Subtotal calculado automáticamente (cantidad × precio)
+
+
+--- 2.3 Relaciones entre modelos ---
+
+  workorder ──One2many──> workorder.line ──Many2one──> service
+     │
+     └──Many2one──> device.type
+
+  "Una orden tiene muchas líneas de servicio (One2many).
+   Cada línea apunta a un servicio del catálogo (Many2one).
+   Cada orden tiene un tipo de dispositivo (Many2one)."
+
+
+--- 2.4 Vistas XML ---
+
+  "Hemos creado vistas Lista y Formulario para los 3 modelos:"
+
+  • Órdenes de Trabajo:
+    - Vista Lista con badges de colores según estado
+    - Vista Formulario con header de botones + statusbar + notebook con pestañas
+    - Vista Búsqueda con filtros por estado y agrupaciones
+
+  • Servicios:
+    - Vista Lista, Formulario, Búsqueda
+
+  • Tipos de Dispositivo:
+    - Vista Lista, Formulario
+
+
+--- 2.5 Seguridad ---
+
+  "Definimos 8 reglas de acceso en ir.model.access.csv:"
+  • Usuarios normales: leer, escribir, crear (NO eliminar)
+  • Administradores: permisos completos (leer, escribir, crear, eliminar)
+  • Se aplica a los 4 modelos
+
+
+--- 2.6 Menús ---
+
+  ColorTech Taller (menú raíz)
+  ├── Órdenes de Trabajo          → Lista/formulario de órdenes
+  └── Configuración
+      ├── Servicios               → Catálogo de servicios
+      └── Tipos de Dispositivo    → Tipos configurables
+
+
+================================================================================
+BLOQUE 3 — DEMOSTRACIÓN EN VIVO EN ODOO (3-4 minutos)
+================================================================================
+
+*** GUIÓN PASO A PASO DE LO QUE HACER EN ODOO ***
+
+Antes de la presentación: abrir el navegador en http://localhost:8069 
+y estar logueado.
+
+--- PASO 1: Mostrar que el módulo está instalado ---
+  1. Ir a Ajustes → Aplicaciones (o Apps)
+  2. Buscar "colortech" en el buscador
+  3. Mostrar que aparece "ColorTech - Órdenes de Trabajo" como instalado
+  [DECIR] "Aquí vemos que nuestro módulo está instalado en Odoo 19"
+
+--- PASO 2: Mostrar el menú principal ---
+  1. Hacer clic en el menú principal (hamburguesa o barra lateral)
+  2. Hacer clic en "ColorTech Taller"
+  [DECIR] "El módulo crea su propio menú raíz con submenús"
+
+--- PASO 3: Mostrar Tipos de Dispositivo (Configuración) ---
+  1. Ir a ColorTech Taller → Configuración → Tipos de Dispositivo
+  2. Mostrar la lista con los 5 tipos precargados:
+     Teléfono Móvil, Consola, Portátil, Auriculares, Tablet
+  3. Abrir uno para mostrar el formulario
+  [DECIR] "Estos son los tipos de dispositivos configurables. Vienen
+   precargados con datos de demostración pero se pueden añadir más."
+
+--- PASO 4: Mostrar catálogo de Servicios ---
+  1. Ir a ColorTech Taller → Configuración → Servicios
+  2. Mostrar la lista con los 6 servicios:
+     Lacado Completo (45€), Pintura Personalizada (75€), 
+     Restauración (35€), Recubrimiento Protector (25€),
+     Acabado Metalizado (60€), Acabado Mate (40€)
+  3. Abrir "Pintura Personalizada" para mostrar el formulario
+  [DECIR] "Cada servicio tiene un precio base y un tiempo estimado. 
+   Cuando se añade a una orden, estos datos se rellenan automáticamente."
+
+--- PASO 5: Mostrar las Órdenes de Trabajo existentes ---
+  1. Ir a ColorTech Taller → Órdenes de Trabajo
+  2. Mostrar la lista con las 3 órdenes de ejemplo:
+     - OT-0001: PS5 de Carlos García (En Proceso)
+     - OT-0002: iPhone 15 de Ana Martínez (Recibido)
+     - OT-0003: Lenovo Legion de Pedro Jiménez (Recibido)
+  3. Señalar los badges de colores (azul=recibido, etc.)
+  [DECIR] "Aquí vemos las 3 órdenes de ejemplo. Los badges de colores
+   nos permiten ver el estado de cada una de un vistazo."
+
+--- PASO 6: Abrir una orden y mostrar el formulario ---
+  1. Hacer clic en OT-0001 (la PS5)
+  2. Mostrar las secciones del formulario:
+     - Header con botones de estado y barra de progreso (statusbar)
+     - Datos del cliente (Carlos García, teléfono, email)
+     - Asignación (técnico Miguel Ruiz, prioridad Normal)
+     - Datos del dispositivo (Consola, Sony PS5, nº serie, buen estado)
+     - Pestaña "Servicios": líneas con Acabado Mate (40€) y 
+       Recubrimiento Protector (25€) → Total: 65€
+     - Pestaña "Observaciones del Dispositivo"
+     - Pestaña "Notas Internas"
+     - Chatter debajo con historial de cambios
+  [DECIR] "El formulario tiene toda la información organizada: cliente,
+   dispositivo, servicios con precios calculados y un historial de
+   cambios en el chatter."
+
+--- PASO 7: DEMO — Crear una orden nueva en vivo ---
+  1. Ir a Órdenes de Trabajo y hacer clic en "Nuevo"
+  2. Rellenar:
+     - Cliente: "María López Hernández"
+     - Teléfono: "622 111 222"
+     - Email: "maria@email.com"
+     - Tipo de Dispositivo: seleccionar "Teléfono Móvil"
+     - Marca: "Samsung"
+     - Modelo: "Galaxy S24 Ultra"
+     - Nº Serie: "IMEI-9876543210"
+     - Estado del Dispositivo: "Buen Estado"
+     - Técnico: "Laura Fernández"
+     - Prioridad: "Urgente"
+     - Fecha Prometida: (poner una fecha futura)
+  3. En la pestaña Servicios, hacer clic en "Añadir línea":
+     - Seleccionar servicio "Lacado Completo"
+     → Mostrar cómo se auto-rellenan precio (45€) y horas (3.0)
+     - Añadir otra línea: "Recubrimiento Protector"
+     → Se auto-rellena: 25€ y 1.5 horas
+  4. Mostrar que el resumen se actualiza: Total 70€, 4.5 horas, 2 servicios
+  5. Guardar la orden
+  [DECIR] "Al crear una orden se asigna automáticamente el número OT-0004.
+   Cuando seleccionamos un servicio, el precio y las horas se rellenan
+   solos desde el catálogo. El total se calcula automáticamente."
+
+--- PASO 8: DEMO — Flujo de estados (botones) ---
+  1. En la orden recién creada, hacer clic en "Iniciar Trabajo"
+     → El estado cambia a "En Proceso" y la barra avanza
+  2. Hacer clic en "Poner a Secar"
+     → Estado: "En Secado"
+  3. Hacer clic en "Control de Calidad"
+     → Estado: "Control de Calidad"
+  4. Hacer clic en "Marcar Terminado"
+     → Estado: "Terminado"
+  5. Hacer clic en "Entregar al Cliente"
+     → Estado: "Entregado" y se registra la fecha de entrega automáticamente
+  6. Bajar al chatter y mostrar los mensajes de tracking: 
+     "Estado: Recibido → En Proceso → En Secado → ..."
+  [DECIR] "Estos botones representan el flujo real del taller. Cada cambio
+   queda registrado en el historial. Si intentamos iniciar sin servicios,
+   nos da un error de validación."
+
+--- PASO 9 (opcional): Mostrar la validación ---
+  1. Crear otra orden nueva rápida (solo campos obligatorios)
+  2. SIN añadir líneas de servicio, hacer clic en "Iniciar Trabajo"
+  3. Mostrar el mensaje de error: "Añade al menos un servicio antes de iniciar"
+  [DECIR] "El módulo incluye validaciones. No se puede iniciar una orden
+   sin servicios asignados."
+
+--- PASO 10 (opcional): Filtros y agrupación ---
+  1. Volver a la lista de Órdenes de Trabajo
+  2. Usar el filtro "En Proceso" para filtrar
+  3. Agrupar por "Estado" o por "Técnico"
+  [DECIR] "También tenemos filtros y agrupaciones para gestionar el
+   taller cuando hay muchas órdenes."
+
+
+================================================================================
+BLOQUE 4 — GIT Y TRABAJO COLABORATIVO (1 minuto)
+================================================================================
+
+[DIAPOSITIVA / DECIR]
+
+"Para el control de versiones hemos usado Git:"
+  • Repositorio propio del grupo en [GitHub/GitLab]
+  • Rama principal (main) con el código final
+  • Ramas por alumno para desarrollo individual
+  • Commits frecuentes y descriptivos
+  • README.md con documentación del módulo
+
+[Mostrar brevemente el repositorio o capturas de commits]
+
+
+================================================================================
+BLOQUE 5 — CONCLUSIONES (30 segundos)
+================================================================================
+
+[DECIR]
+
+"En resumen, hemos desarrollado un módulo completo para Odoo 19 que:
+  • Resuelve un problema real de gestión de un taller de personalización
+  • Tiene 3 modelos con relaciones Many2one y One2many
+  • Incluye vistas Lista, Formulario y Búsqueda
+  • Tiene un flujo de estados completo con 7 estados y botones
+  • Campos computados que calculan costes y horas automáticamente
+  • Datos de demostración para testing
+  • Seguridad con permisos diferenciados para usuarios y administradores
+  • Todo el código gestionado con Git"
+
+"Las posibles mejoras futuras serían:
+  • Añadir vista Kanban para ver los estados como tablero
+  • Integrar con el módulo de facturación de Odoo
+  • Añadir reportes PDF para el cliente
+  • Dashboard con estadísticas del taller"
+
+"¿Alguna pregunta?"
+
+
+================================================================================
+RESUMEN RÁPIDO — QUÉ HACER EN ODOO PARA LA DEMO
+================================================================================
+
+  ACCIÓN EN ODOO                                  | CUÁNDO
+  ─────────────────────────────────────────────────|──────────────
+  Ajustes → Apps → buscar "colortech"             | Mostrar instalación
+  ColorTech Taller → Config → Tipos Dispositivo   | Mostrar modelo config
+  ColorTech Taller → Config → Servicios           | Mostrar catálogo
+  ColorTech Taller → Órdenes de Trabajo           | Mostrar lista con datos
+  Clic en OT-0001                                 | Mostrar formulario completo
+  Botón "Nuevo" → rellenar orden nueva            | Demo creación en vivo
+  Añadir líneas de servicio                       | Demo auto-relleno y cálculos
+  Botones: Iniciar → Secar → Control → Entregar   | Demo flujo de estados
+  Bajar al chatter                                | Mostrar tracking
+  Crear orden SIN servicios → Iniciar             | Demo validación
+  Filtros y agrupaciones en lista                 | Demo búsqueda
+
+================================================================================

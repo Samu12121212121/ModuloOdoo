@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_colortech_device_type_user,colortech.device.type.user,model_colortech_device_type,base.group_user,1,1,1,0
+access_colortech_device_type_manager,colortech.device.type.manager,model_colortech_device_type,base.group_system,1,1,1,1
+access_colortech_service_user,colortech.service.user,model_colortech_service,base.group_user,1,1,1,0
+access_colortech_service_manager,colortech.service.manager,model_colortech_service,base.group_system,1,1,1,1
+access_colortech_workorder_user,colortech.workorder.user,model_colortech_workorder,base.group_user,1,1,1,0
+access_colortech_workorder_manager,colortech.workorder.manager,model_colortech_workorder,base.group_system,1,1,1,1
+access_colortech_workorder_line_user,colortech.workorder.line.user,model_colortech_workorder_line,base.group_user,1,1,1,0
+access_colortech_workorder_line_manager,colortech.workorder.line.manager,model_colortech_workorder_line,base.group_system,1,1,1,1

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ========================================== -->
+        <!-- Tipos de Dispositivo                       -->
+        <!-- ========================================== -->
+        <record id="device_movil" model="colortech.device.type">
+            <field name="name">Teléfono Móvil</field>
+            <field name="code">DEV-MOV</field>
+            <field name="description">Smartphones de todas las marcas.</field>
+        </record>
+        <record id="device_consola" model="colortech.device.type">
+            <field name="name">Consola de Videojuegos</field>
+            <field name="code">DEV-CON</field>
+            <field name="description">PS5, Xbox, Nintendo Switch, etc.</field>
+        </record>
+        <record id="device_portatil" model="colortech.device.type">
+            <field name="name">Ordenador Portátil</field>
+            <field name="code">DEV-PORT</field>
+            <field name="description">Portátiles y ultrabooks.</field>
+        </record>
+        <record id="device_auriculares" model="colortech.device.type">
+            <field name="name">Auriculares</field>
+            <field name="code">DEV-AUR</field>
+            <field name="description">Auriculares over-ear y gaming.</field>
+        </record>
+        <record id="device_tablet" model="colortech.device.type">
+            <field name="name">Tablet</field>
+            <field name="code">DEV-TAB</field>
+            <field name="description">iPads y tablets Android.</field>
+        </record>
+
+        <!-- ========================================== -->
+        <!-- Servicios                                  -->
+        <!-- ========================================== -->
+        <record id="service_lacado" model="colortech.service">
+            <field name="name">Lacado Completo</field>
+            <field name="code">SRV-LAC</field>
+            <field name="service_type">pintura</field>
+            <field name="description">Lacado completo del dispositivo con color a elegir.</field>
+            <field name="default_price">45.00</field>
+            <field name="estimated_hours">3.0</field>
+        </record>
+        <record id="service_pintura_custom" model="colortech.service">
+            <field name="name">Pintura Personalizada</field>
+            <field name="code">SRV-PCUS</field>
+            <field name="service_type">personalizacion</field>
+            <field name="description">Diseño personalizado con colores y motivos a medida del cliente.</field>
+            <field name="default_price">75.00</field>
+            <field name="estimated_hours">5.0</field>
+        </record>
+        <record id="service_restauracion" model="colortech.service">
+            <field name="name">Restauración de Carcasa</field>
+            <field name="code">SRV-REST</field>
+            <field name="service_type">restauracion</field>
+            <field name="description">Reparación de arañazos, golpes y desgaste de la carcasa.</field>
+            <field name="default_price">35.00</field>
+            <field name="estimated_hours">2.0</field>
+        </record>
+        <record id="service_proteccion" model="colortech.service">
+            <field name="name">Recubrimiento Protector</field>
+            <field name="code">SRV-PROT</field>
+            <field name="service_type">proteccion</field>
+            <field name="description">Capa de protección transparente anti-arañazos.</field>
+            <field name="default_price">25.00</field>
+            <field name="estimated_hours">1.5</field>
+        </record>
+        <record id="service_metalizado" model="colortech.service">
+            <field name="name">Acabado Metalizado</field>
+            <field name="code">SRV-META</field>
+            <field name="service_type">pintura</field>
+            <field name="description">Acabado metalizado premium con partículas de aluminio.</field>
+            <field name="default_price">60.00</field>
+            <field name="estimated_hours">4.0</field>
+        </record>
+        <record id="service_mate" model="colortech.service">
+            <field name="name">Acabado Mate</field>
+            <field name="code">SRV-MATE</field>
+            <field name="service_type">pintura</field>
+            <field name="description">Acabado mate elegante sin brillo.</field>
+            <field name="default_price">40.00</field>
+            <field name="estimated_hours">2.5</field>
+        </record>
+
+        <!-- ========================================== -->
+        <!-- Órdenes de Trabajo de ejemplo              -->
+        <!-- ========================================== -->
+        <record id="workorder_1" model="colortech.workorder">
+            <field name="name">OT-0001</field>
+            <field name="client_name">Carlos García López</field>
+            <field name="client_phone">612 345 678</field>
+            <field name="client_email">carlos.garcia@email.com</field>
+            <field name="device_type_id" ref="device_consola"/>
+            <field name="device_brand">Sony</field>
+            <field name="device_model">PlayStation 5</field>
+            <field name="device_serial">CFI-1216A-33445566</field>
+            <field name="device_condition">bueno</field>
+            <field name="technician_name">Miguel Ruiz</field>
+            <field name="priority">0</field>
+            <field name="date_received" eval="time.strftime('%Y-%m-%d')"/>
+            <field name="state">en_proceso</field>
+            <field name="device_notes">Cliente quiere acabado negro mate para la carcasa superior e inferior.</field>
+        </record>
+        <record id="workorder_1_line_1" model="colortech.workorder.line">
+            <field name="workorder_id" ref="workorder_1"/>
+            <field name="service_id" ref="service_mate"/>
+            <field name="description">Acabado mate negro PS5</field>
+            <field name="quantity">1</field>
+            <field name="unit_price">40.00</field>
+            <field name="estimated_hours">2.5</field>
+        </record>
+        <record id="workorder_1_line_2" model="colortech.workorder.line">
+            <field name="workorder_id" ref="workorder_1"/>
+            <field name="service_id" ref="service_proteccion"/>
+            <field name="description">Capa protectora anti-arañazos</field>
+            <field name="quantity">1</field>
+            <field name="unit_price">25.00</field>
+            <field name="estimated_hours">1.5</field>
+        </record>
+
+        <record id="workorder_2" model="colortech.workorder">
+            <field name="name">OT-0002</field>
+            <field name="client_name">Ana Martínez Sánchez</field>
+            <field name="client_phone">678 901 234</field>
+            <field name="client_email">ana.martinez@email.com</field>
+            <field name="device_type_id" ref="device_movil"/>
+            <field name="device_brand">Apple</field>
+            <field name="device_model">iPhone 15 Pro</field>
+            <field name="device_serial">IMEI-1234567890</field>
+            <field name="device_condition">normal</field>
+            <field name="technician_name">Laura Fernández</field>
+            <field name="priority">1</field>
+            <field name="date_received" eval="time.strftime('%Y-%m-%d')"/>
+            <field name="state">recibido</field>
+            <field name="device_notes">Quiere personalización completa en dorado metalizado.</field>
+        </record>
+        <record id="workorder_2_line_1" model="colortech.workorder.line">
+            <field name="workorder_id" ref="workorder_2"/>
+            <field name="service_id" ref="service_metalizado"/>
+            <field name="description">Metalizado dorado iPhone 15 Pro</field>
+            <field name="quantity">1</field>
+            <field name="unit_price">60.00</field>
+            <field name="estimated_hours">4.0</field>
+        </record>
+
+        <record id="workorder_3" model="colortech.workorder">
+            <field name="name">OT-0003</field>
+            <field name="client_name">Pedro Jiménez Torres</field>
+            <field name="client_phone">645 678 901</field>
+            <field name="device_type_id" ref="device_portatil"/>
+            <field name="device_brand">Lenovo</field>
+            <field name="device_model">Legion 5 Pro</field>
+            <field name="device_condition">danado</field>
+            <field name="technician_name">Miguel Ruiz</field>
+            <field name="priority">0</field>
+            <field name="date_received" eval="time.strftime('%Y-%m-%d')"/>
+            <field name="state">recibido</field>
+            <field name="device_notes">Carcasa con arañazos profundos. Restaurar y pintar en rojo racing.</field>
+        </record>
+        <record id="workorder_3_line_1" model="colortech.workorder.line">
+            <field name="workorder_id" ref="workorder_3"/>
+            <field name="service_id" ref="service_restauracion"/>
+            <field name="description">Restauración carcasa arañada</field>
+            <field name="quantity">1</field>
+            <field name="unit_price">35.00</field>
+            <field name="estimated_hours">2.0</field>
+        </record>
+        <record id="workorder_3_line_2" model="colortech.workorder.line">
+            <field name="workorder_id" ref="workorder_3"/>
+            <field name="service_id" ref="service_pintura_custom"/>
+            <field name="description">Pintura personalizada rojo racing</field>
+            <field name="quantity">1</field>
+            <field name="unit_price">75.00</field>
+            <field name="estimated_hours">5.0</field>
+        </record>
+        <record id="workorder_3_line_3" model="colortech.workorder.line">
+            <field name="workorder_id" ref="workorder_3"/>
+            <field name="service_id" ref="service_proteccion"/>
+            <field name="description">Capa protectora</field>
+            <field name="quantity">1</field>
+            <field name="unit_price">25.00</field>
+            <field name="estimated_hours">1.5</field>
+        </record>
+
+    </data>
+</odoo>

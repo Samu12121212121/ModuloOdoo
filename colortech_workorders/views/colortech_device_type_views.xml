@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista Lista de Tipos de Dispositivo -->
+    <record id="colortech_device_type_view_tree" model="ir.ui.view">
+        <field name="name">colortech.device.type.tree</field>
+        <field name="model">colortech.device.type</field>
+        <field name="arch" type="xml">
+            <list string="Tipos de Dispositivo">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="description"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Formulario de Tipos de Dispositivo -->
+    <record id="colortech_device_type_view_form" model="ir.ui.view">
+        <field name="name">colortech.device.type.form</field>
+        <field name="model">colortech.device.type</field>
+        <field name="arch" type="xml">
+            <form string="Tipo de Dispositivo">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="colortech_device_type_action" model="ir.actions.act_window">
+        <field name="name">Tipos de Dispositivo</field>
+        <field name="res_model">colortech.device.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crea tu primer tipo de dispositivo
+            </p>
+        </field>
+    </record>
+
+</odoo>

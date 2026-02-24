@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menú raíz -->
+    <menuitem id="colortech_menu_root"
+              name="ColorTech Taller"
+              sequence="100"/>
+
+    <!-- Submenú: Órdenes -->
+    <menuitem id="colortech_menu_workorders"
+              name="Órdenes de Trabajo"
+              parent="colortech_menu_root"
+              action="colortech_workorder_action"
+              sequence="10"/>
+
+    <!-- Submenú: Configuración -->
+    <menuitem id="colortech_menu_config"
+              name="Configuración"
+              parent="colortech_menu_root"
+              sequence="90"/>
+
+    <menuitem id="colortech_menu_services"
+              name="Servicios"
+              parent="colortech_menu_config"
+              action="colortech_service_action"
+              sequence="10"/>
+
+    <menuitem id="colortech_menu_device_types"
+              name="Tipos de Dispositivo"
+              parent="colortech_menu_config"
+              action="colortech_device_type_action"
+              sequence="20"/>
+
+</odoo>
